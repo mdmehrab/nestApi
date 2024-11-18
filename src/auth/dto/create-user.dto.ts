@@ -1,0 +1,27 @@
+import { IsString, IsEmail, IsEnum, IsArray, IsPhoneNumber, IsOptional, IsIn } from 'class-validator';
+import { Roles } from '../schema/user.schema';
+
+
+export class CreateUserDto {
+  @IsString()
+  username: string;
+
+  @IsEmail()
+  @IsOptional() 
+  email: string;
+
+  @IsString()
+  password: string;
+
+  @IsEnum(Roles, { each: true })
+  roles: Roles;
+
+  @IsString()
+  mobileNumber: string;
+
+  @IsIn(['male', 'female', 'other'])
+  gender: string;
+
+  @IsString()
+  country: string;
+}

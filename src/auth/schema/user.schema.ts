@@ -21,7 +21,7 @@ export class User extends Document {
   password: string;
 
   @Prop({ type: String, enum: Roles, default: Roles.USER })
-  roles: Roles;
+  roles?: Roles;
 
   @Prop({ required: true })
   mobileNumber: string;

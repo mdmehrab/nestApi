@@ -13,8 +13,9 @@ export class CreateUserDto {
   @IsString()
   password: string;
 
-  @IsEnum(Roles, { each: true })
-  roles: Roles;
+  @IsEnum(Roles) 
+  @IsOptional()
+  roles?: Roles;
 
   @IsString()
   mobileNumber: string;

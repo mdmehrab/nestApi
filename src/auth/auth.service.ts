@@ -3,7 +3,9 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './schema/user.schema';
-import * as bcrypt from 'bcryptjs'
+import * as bcrypt from 'bcryptjs';
+import { LoginDto } from './dto/login.dto'; 
+import { HttpException, HttpStatus } from '@nestjs/common';
 
 @Injectable()
 export class AuthService {
@@ -11,10 +13,10 @@ export class AuthService {
     @InjectModel(User.name) private readonly authModel: Model<User>,
   ) {}
 
+  // register user 
   async create(createUserDto: CreateUserDto): Promise<User> {
     const { password, roles, ...userData } = createUserDto;
 
-    // Set default role to USER if no role is provided
     const role = roles || 'USER';
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -22,13 +24,37 @@ export class AuthService {
     const createdUser = new this.authModel({
       ...userData,
       password: hashedPassword,
-      roles: role,  // Assign the default or provided role
+      roles: role,
     });
 
     return createdUser.save();
   }
 
-  async findAll(): Promise<User[]> {
-    return this.authModel.find().exec();
+
+
+  async login(loginDto: LoginDto): Promise<{ user: User }> {
+    const { email, password } = loginDto;
+  
+    try {
+
+      const user = await this.authModel.findOne({ email }).exec(); 
+      if (!user) {
+        throw new HttpException('Invalid email or password', HttpStatus.BAD_REQUEST);
+      }
+  
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+      if (!isPasswordValid) {
+        throw new HttpException('Invalid email or password', HttpStatus.BAD_REQUEST);
+      }
+  
+      const { password: _, ...others } = user.toObject(); 
+  
+      return { user: others as User };
+    } catch (error) {
+      throw error;
+    }
   }
+  
+  
+  
 }

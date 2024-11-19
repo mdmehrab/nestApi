@@ -2,7 +2,7 @@ import { IsString, IsEmail, IsEnum, IsArray, IsPhoneNumber, IsOptional, IsIn } f
 import { Roles } from '../schema/user.schema';
 
 
-export class CreateUserDto {
+export class RegisterUserDto {
   @IsString()
   username: string;
 

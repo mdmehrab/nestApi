@@ -1,26 +1,37 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { User } from './schema/user.schema';
+import { Controller, Post, Body, Get, UseGuards, Request, HttpException, HttpStatus } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
-
+import { RegisterUserDto } from './dto/register.dto';
+import * as jwt from 'jsonwebtoken';
 
 @Controller('users')
 export class AuthController {
-  constructor(private readonly  authService: AuthService) {}
+  private readonly jwtSecret = process.env.JWT_SECRET; 
 
+  constructor(private readonly authService: AuthService) {}
 
-  // register user 
   @Post('/register')
-  async createUser(@Body() createUserDto: CreateUserDto): Promise<User> {
-    return this.authService.create(createUserDto);
+  async createUser(@Body() registerUserDto: RegisterUserDto) {
+    return this.authService.create(registerUserDto);
   }
 
-
-  // Login user
   @Post('/login')
-  async login(@Body() loginDto: LoginDto): Promise<{ user: User }> {
+  async login(@Body() loginDto: LoginDto) {
     return this.authService.login(loginDto);
   }
 
+  @Get('/profile')
+  async getProfile(@Request() req) {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+      throw new HttpException('Token missing', HttpStatus.UNAUTHORIZED);
+    }
+
+    try {
+      const decoded = jwt.verify(token, this.jwtSecret);
+      return { profile: decoded };
+    } catch {
+      throw new HttpException('Invalid token', HttpStatus.UNAUTHORIZED);
+    }
+  }
 }

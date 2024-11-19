@@ -1,11 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import * as jwt from 'jsonwebtoken';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './schema/user.schema';
 import * as bcrypt from 'bcryptjs';
-import { LoginDto } from './dto/login.dto'; 
-import { HttpException, HttpStatus } from '@nestjs/common';
+import { LoginDto } from './dto/login.dto';
+import { RegisterUserDto } from './dto/register.dto';
 
 @Injectable()
 export class AuthService {
@@ -13,12 +13,12 @@ export class AuthService {
     @InjectModel(User.name) private readonly authModel: Model<User>,
   ) {}
 
-  // register user 
-  async create(createUserDto: CreateUserDto): Promise<User> {
-    const { password, roles, ...userData } = createUserDto;
+  private readonly jwtSecret = process.env.JWT_SECRET;
 
+  // Register user
+  async create(registerUserDto: RegisterUserDto): Promise<User> {
+    const { password, roles, ...userData } = registerUserDto;
     const role = roles || 'USER';
-
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const createdUser = new this.authModel({
@@ -30,31 +30,23 @@ export class AuthService {
     return createdUser.save();
   }
 
-
-
-  async login(loginDto: LoginDto): Promise<{ user: User }> {
+  // Login user and generate JWT
+  async login(loginDto: LoginDto): Promise<{ accessToken: string }> {
     const { email, password } = loginDto;
-  
-    try {
 
-      const user = await this.authModel.findOne({ email }).exec(); 
-      if (!user) {
-        throw new HttpException('Invalid email or password', HttpStatus.BAD_REQUEST);
-      }
-  
-      const isPasswordValid = await bcrypt.compare(password, user.password);
-      if (!isPasswordValid) {
-        throw new HttpException('Invalid email or password', HttpStatus.BAD_REQUEST);
-      }
-  
-      const { password: _, ...others } = user.toObject(); 
-  
-      return { user: others as User };
-    } catch (error) {
-      throw error;
+    const user = await this.authModel.findOne({ email }).exec();
+    if (!user) {
+      throw new HttpException('Invalid email or password', HttpStatus.BAD_REQUEST);
     }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      throw new HttpException('Invalid email or password', HttpStatus.BAD_REQUEST);
+    }
+
+    const payload = { id: user._id, roles: user.roles };
+    const token = jwt.sign(payload, this.jwtSecret, { expiresIn: '1h' });
+
+    return { accessToken: token };
   }
-  
-  
-  
 }

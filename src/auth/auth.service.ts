@@ -44,8 +44,8 @@ export class AuthService {
       throw new HttpException('Invalid email or password', HttpStatus.BAD_REQUEST);
     }
 
-    const payload = { id: user._id, roles: user.roles };
-    const token = jwt.sign(payload, this.jwtSecret, { expiresIn: '1h' });
+    const payload = { id: user._id, roles: user.roles, email: user.email };
+    const token = jwt.sign(payload, this.jwtSecret, { expiresIn: process.env.JWT_EXPIRES });
 
     return { accessToken: token };
   }

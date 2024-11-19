@@ -2,7 +2,7 @@ import { Controller, Post, Body, Get, UseGuards, Request, HttpException, HttpSta
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterUserDto } from './dto/register.dto';
-import * as jwt from 'jsonwebtoken';
+
 
 @Controller('users')
 export class AuthController {
@@ -20,18 +20,4 @@ export class AuthController {
     return this.authService.login(loginDto);
   }
 
-  @Get('/profile')
-  async getProfile(@Request() req) {
-    const token = req.headers.authorization?.split(' ')[1];
-    if (!token) {
-      throw new HttpException('Token missing', HttpStatus.UNAUTHORIZED);
-    }
-
-    try {
-      const decoded = jwt.verify(token, this.jwtSecret);
-      return { profile: decoded };
-    } catch {
-      throw new HttpException('Invalid token', HttpStatus.UNAUTHORIZED);
-    }
-  }
 }

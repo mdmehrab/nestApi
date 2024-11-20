@@ -19,6 +19,8 @@ export class AuthGuard implements CanActivate {
       // Verify the JWT token
       const decoded = jwt.verify(token, process.env.JWT_SECRET); // Use the same secret as in your AuthService
       request.user = decoded; // Attach the decoded user to the request
+
+      console.log('user comes from auth guard : ', request.user)
       return true; // Allow access
     } catch (err) {
       throw new HttpException('Invalid token', HttpStatus.UNAUTHORIZED);

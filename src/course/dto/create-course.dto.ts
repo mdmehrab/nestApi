@@ -1,36 +1,43 @@
-
-import { IsString, IsArray, IsEnum, IsNumber, IsOptional, IsBoolean } from 'class-validator';
-
+import {
+  IsString,
+  IsArray,
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsBoolean,
+  IsEmpty,
+} from 'class-validator';
+import { User } from 'src/auth/schema/user.schema';
 
 export class CreateCourseDto {
   @IsString()
-  title: string;  // Course title
+  title: string;
 
   @IsString()
-  description: string;  // Course description
+  description: string;
 
-  @IsString()
-  author: string;  // The author should be a string (user's ObjectId as string)
+  @IsEmpty({ message: 'You can not pass user id.' })
+  readonly user: User;
 
   @IsNumber()
-  duration: number;  // Course duration in hours
+  duration: number;
 
-  @IsOptional()  // Category is optional
+  @IsOptional()
   @IsArray()
-  category: string[];  // Category of the course
+  category: string[];
 
   @IsArray()
   @IsEnum(['Beginner', 'Intermediate', 'Advanced'], { each: true })
-  level: string[];  // Level of the course
+  level: string[];
 
   @IsNumber()
-  price: number;  // Price of the course
+  price: number;
 
   @IsOptional()
   @IsBoolean()
-  isPublished?: boolean = false;  // Whether the course is published
+  isPublished?: boolean = false;
 
   @IsOptional()
   @IsArray()
-  tags: string[];  // Tags related to the course
+  tags: string[];
 }

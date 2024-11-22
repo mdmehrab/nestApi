@@ -1,37 +1,38 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Schema as MongooseSchema } from 'mongoose';
+import mongoose, { Document, Schema as MongooseSchema } from 'mongoose';
+import { User } from 'src/auth/schema/user.schema';
 
 
 @Schema({
-  timestamps: true,  // Automatically adds createdAt and updatedAt fields
+  timestamps: true,  
 })
 export class Course extends Document {
   @Prop({ required: true })
-  title: string;  // The title of the course
+  title: string;  
 
   @Prop({ required: true })
-  description: string;  // A brief description of the course
+  description: string; 
 
-  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', required: true })
-  author: MongooseSchema.Types.ObjectId;  // Reference to the User schema (author as ObjectId)
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
+  user: User;
 
   @Prop({ required: true })
-  duration: number;  // Duration in hours
+  duration: number; 
 
-  @Prop([String])  // Categories for the course (e.g., Programming, Design)
+  @Prop([String]) 
   category: string[];
 
   @Prop({ required: true })
-  level: string[];  // Levels of the course (e.g., Beginner, Intermediate, Advanced)
+  level: string[]; 
 
   @Prop({ required: true })
-  price: number;  // Price of the course
+  price: number; 
 
   @Prop({ default: false })
-  isPublished: boolean;  // Whether the course is published or not
+  isPublished: boolean;  
 
   @Prop([String])
-  tags: string[];  // Tags for course categorization
+  tags: string[];  
 }
 
 export const CourseSchema = SchemaFactory.createForClass(Course);

@@ -1,10 +1,8 @@
-// src/course/course.service.ts
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { Course } from './schema/course.schema';
-import { User } from 'src/auth/schema/user.schema';
 
 @Injectable()
 export class CourseService {
@@ -18,4 +16,10 @@ export class CourseService {
     const newCourse = await this.courseModel.create(data);
     return newCourse;
   }
+
+  // get all courses 
+  async findAll(): Promise<Course[]> {
+    return this.courseModel.find().populate('user').exec(); 
+  }
+  
 }

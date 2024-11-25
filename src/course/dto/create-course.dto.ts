@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer';
 import {
   IsString,
   IsArray,
@@ -6,8 +7,20 @@ import {
   IsOptional,
   IsBoolean,
   IsEmpty,
+  Max,
+  Min,
+  ValidateNested,
 } from 'class-validator';
 import { User } from 'src/auth/schema/user.schema';
+
+class PriceDto {
+  @IsNumber()
+  currentPrice: number;
+
+  @IsNumber()
+  originalPrice: number;
+}
+
 
 export class CreateCourseDto {
   @IsString()
@@ -18,6 +31,9 @@ export class CreateCourseDto {
 
   @IsEmpty({ message: 'You can not pass user id.' })
   readonly user: User;
+
+  @IsOptional()
+  imageUrl?: string;
 
   @IsNumber()
   duration: number;
@@ -30,12 +46,24 @@ export class CreateCourseDto {
   @IsEnum(['Beginner', 'Intermediate', 'Advanced'], { each: true })
   level: string[];
 
-  @IsNumber()
-  price: number;
+  @ValidateNested()
+  @Type(() => PriceDto)
+  readonly price: PriceDto; 
+
+
+  @IsOptional()
+  @IsBoolean()
+  readonly bestSeller?: boolean; 
 
   @IsOptional()
   @IsBoolean()
   isPublished?: boolean = false;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Max(5)
+  readonly rating?: number;
 
   @IsOptional()
   @IsArray()

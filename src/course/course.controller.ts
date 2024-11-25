@@ -20,7 +20,7 @@ export class CourseController {
 
   // get all course 
   @Get('/all-courses')
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   async findAll(): Promise<Course[]> {
     return this.courseService.findAll();
   }

@@ -10,20 +10,24 @@ export class RolesGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    const token = request.headers.authorization?.split(' ')[1];
-
+    
+    // Extract the token from cookies
+    const token = request.cookies['access_token'];
+    
     if (!token) {
       throw new HttpException('Token missing', HttpStatus.UNAUTHORIZED);
     }
 
     let decoded: any;
     try {
+      // Verify the token using JwtService
       decoded = this.jwtService.verify(token, { secret: process.env.JWT_SECRET });
-      request.user = decoded;  // Attach the decoded user to the request
+      request.user = decoded; // Attach the decoded user to the request
     } catch (err) {
       throw new HttpException('Invalid token', HttpStatus.UNAUTHORIZED);
     }
 
+    // Get the roles required for the route
     const requiredRoles = this.reflector.get<Roles[]>(ROLES_KEY, context.getHandler());
 
     if (!requiredRoles) {
@@ -31,10 +35,12 @@ export class RolesGuard implements CanActivate {
     }
 
     const user: User = request.user;
+    
+    // Check if the user's role matches any of the required roles
     if (!requiredRoles.includes(user.roles)) {
       throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
     }
 
-    return true;  // User has the required role
+    return true; // User has the required role
   }
 }

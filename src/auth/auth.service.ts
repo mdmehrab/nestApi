@@ -1,9 +1,9 @@
-import * as jwt from 'jsonwebtoken';
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from './schema/user.schema';
 import * as bcrypt from 'bcryptjs';
+import * as jwt from 'jsonwebtoken';
 import { LoginDto } from './dto/login.dto';
 import { RegisterUserDto } from './dto/register.dto';
 
@@ -45,6 +45,7 @@ export class AuthService {
     }
 
     const payload = { id: user._id, roles: user.roles, email: user.email };
+    // Set token expiry to 1 minute (1m)
     const token = jwt.sign(payload, this.jwtSecret, { expiresIn: process.env.JWT_EXPIRES });
 
     return { accessToken: token };

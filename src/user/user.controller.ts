@@ -14,7 +14,8 @@ export class UserController {
   @Role(Roles.ADMIN) 
   @Get('all-users')
   async getAllUsers(): Promise<User[]> {
-    return this.userService.findAll();
+    const users = await this.userService.findAll();
+    return users.filter(user => user.roles !== 'ADMIN');
   }
 
   // Get user profile

@@ -31,6 +31,9 @@ export class User extends Document {
 
   @Prop({ required: true })
   country: string;
+
+  @Prop({ default: false })  // New field for approval status
+  isApproved: boolean;  // Initially, users are not approved
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

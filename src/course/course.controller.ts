@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards, Req, Param } from '@nestjs/common';
 import { CourseService } from './course.service';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { Course } from './schema/course.schema';
@@ -21,7 +21,14 @@ export class CourseController {
   // get all course 
   @Get('/all-courses')
   @UseGuards(AuthGuard)
-  async findAll(): Promise<Course[]> {
+  async findAll(): Promise<Course[]> {  
     return this.courseService.findAll();
+  }
+
+  // Get a single course by ID
+  @Get('/single-course/:id')
+  @UseGuards(AuthGuard)
+  async findOne(@Param('id') id: string): Promise<Course> {
+    return this.courseService.findOne(id);
   }
 }

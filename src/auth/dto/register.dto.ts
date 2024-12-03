@@ -13,6 +13,11 @@ export class RegisterUserDto {
   @IsString()
   password: string;
 
+  
+  @IsString()
+  @IsOptional()
+  profileImg?: string;
+
   @IsEnum(Roles) 
   @IsOptional()
   roles?: Roles;

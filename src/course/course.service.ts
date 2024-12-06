@@ -40,5 +40,29 @@ export class CourseService {
       throw new Error('An error occurred while fetching the course');
     }
   }
+
+  // Delete a course by ID
+async delete(id: string, user): Promise<{ message: string }> {
+  // Validate the ID
+  if (!Types.ObjectId.isValid(id)) {
+    throw new BadRequestException('Invalid ID format');
+  }
+
+  // Find the course and ensure it exists
+  const course = await this.courseModel.findById(id);
+  if (!course) {
+    throw new NotFoundException(`Course with ID ${id} not found`);
+  }
+
+  // Ensure the user owns the course or has necessary permissions
+  if (course.user.toString() !== user.id) {
+    throw new BadRequestException('You are not authorized to delete this course');
+  }
+
+  // Delete the course
+  await this.courseModel.findByIdAndDelete(id);
+  return { message: `Course with ID ${id} has been deleted successfully` };
+}
+
   
 }

@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, UseGuards, Req, Param } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  UseGuards,
+  Req,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { CourseService } from './course.service';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { Course } from './schema/course.schema';
@@ -18,10 +27,10 @@ export class CourseController {
     return this.courseService.create(createCourseDto, req.user);
   }
 
-  // get all course 
+  // get all course
   @Get('/all-courses')
   @UseGuards(AuthGuard)
-  async findAll(): Promise<Course[]> {  
+  async findAll(): Promise<Course[]> {
     return this.courseService.findAll();
   }
 
@@ -30,5 +39,15 @@ export class CourseController {
   @UseGuards(AuthGuard)
   async findOne(@Param('id') id: string): Promise<Course> {
     return this.courseService.findOne(id);
+  }
+
+  // Delete a course by ID
+  @Delete('/delete/:id')
+  @UseGuards(AuthGuard)
+  async delete(
+    @Param('id') id: string,
+    @Req() req,
+  ): Promise<{ message: string }> {
+    return this.courseService.delete(id, req.user);
   }
 }

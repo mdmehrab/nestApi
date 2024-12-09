@@ -11,17 +11,17 @@ export class UserController {
 
   // Get all users - Only accessible by admins
   @UseGuards(AuthGuard, RolesGuard)
-  @Role(Roles.ADMIN) 
+  @Role(Roles.ADMIN)
   @Get('all-users')
   async getAllUsers(): Promise<User[]> {
     const users = await this.userService.findAll();
-    return users.filter(user => user.roles !== 'ADMIN');
+    return users.filter((user) => user.roles !== 'ADMIN');
   }
 
   // Get user profile
   @UseGuards(AuthGuard)
   @Get('/profile')
-  async getProfile(@Request() req): Promise<User> { 
+  async getProfile(@Request() req): Promise<User> {
     // req.user will be populated by the AuthGuard
     return this.userService.findUserByEmail(req.user.email);
   }

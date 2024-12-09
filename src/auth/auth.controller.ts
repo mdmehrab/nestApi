@@ -1,11 +1,21 @@
-import { Controller, Post, Body, HttpException, HttpStatus, Response, Param, Patch } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  HttpException,
+  HttpStatus,
+  Response,
+  Param,
+  Patch,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterUserDto } from './dto/register.dto';
 import { Response as Res } from 'express';
 import { Role } from './decorator/role.decorator';
 import { Roles } from './schema/user.schema';
-
+import { AuthGuard } from './middleware/auth.guard';
 
 @Controller('users')
 export class AuthController {
@@ -15,9 +25,6 @@ export class AuthController {
   async createUser(@Body() registerUserDto: RegisterUserDto) {
     return this.authService.create(registerUserDto);
   }
-
-
-
 
   @Post('/login')
   async login(@Body() loginDto: LoginDto, @Response() res: Res) {
@@ -35,18 +42,32 @@ export class AuthController {
         message: 'Login successful',
       });
     } catch (err) {
+      console.log(err);
       throw new HttpException('Invalid credentials', HttpStatus.BAD_REQUEST);
     }
   }
 
-    // IF ADMIN APPROVED 
-@Patch('/approve/:id')
-@Role(Roles.ADMIN)  
-async approveUser(@Param('id') userId: string) {
-  const user = await this.authService.approveUser(userId);
-  if (!user) {
-    throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+  // IF ADMIN APPROVED
+  @Patch('/approve/:id')
+  @Role(Roles.ADMIN)
+  async approveUser(@Param('id') userId: string) {
+    const user = await this.authService.approveUser(userId);
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    return { message: 'User approved successfully' };
   }
-  return { message: 'User approved successfully' };
-}
+
+  // =========================== forget password ===========================
+  // =========================== Forgot Password ===========================
+  @UseGuards(AuthGuard) // Optional: Use this if you want only authenticated users to access the forgot-password route
+  @Post('forgot-password')
+  async forgotPassword(@Body('email') email: string) {
+    try {
+      await this.authService.sendForgotPasswordEmail(email);
+      return { message: 'Password reset email sent successfully' };
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
 }

@@ -70,4 +70,18 @@ export class AuthController {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
   }
+
+  // ================= Reset Password =================
+  @Post('reset-password')
+  async resetPassword(
+    @Body('token') token: string,
+    @Body('newPassword') newPassword: string,
+  ) {
+    try {
+      await this.authService.resetPassword(token, newPassword);
+      return { message: 'Password has been reset successfully' };
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
 }

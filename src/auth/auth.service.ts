@@ -102,6 +102,7 @@ export class AuthService {
 
     // Email details
     const resetLink = `http://localhost:5173/reset-password?token=${token}`;
+    console.log('resetLink : ', resetLink);
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: email,
@@ -116,5 +117,34 @@ export class AuthService {
 
     // Send the email
     await transporter.sendMail(mailOptions);
+  }
+
+  // ===================== Reset Password =====================
+  async resetPassword(token: string, newPassword: string): Promise<void> {
+    try {
+      // Verify token
+      const decoded = jwt.verify(token, this.jwtSecret) as { email: string };
+      const user = await this.authModel.findOne({ email: decoded.email });
+
+      if (!user) {
+        throw new HttpException(
+          'Invalid token or user does not exist',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      // Hash new password
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+      // Update password
+      user.password = hashedPassword;
+      await user.save();
+    } catch (error) {
+      console.log(error);
+      throw new HttpException(
+        'Invalid or expired token',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 }

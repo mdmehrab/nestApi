@@ -102,7 +102,7 @@ export class AuthService {
 
     // Email details
     const resetLink = `http://localhost:5173/reset-password?token=${token}`;
-    console.log('resetLink : ', resetLink);
+    // console.log('resetLink : ', resetLink);
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: email,
@@ -110,7 +110,7 @@ export class AuthService {
       html: `
         <h3>Reset Your Password</h3>
         <p>Click the link below to reset your password. This link is valid for 1 hour:</p>
-        <a href="${resetLink}">Reset Password</a>
+        <a href=${resetLink}>Reset Password</a>
         <p>If you did not request a password reset, you can safely ignore this email.</p>
       `,
     };
